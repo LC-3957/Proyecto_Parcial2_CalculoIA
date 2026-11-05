@@ -1,0 +1,45 @@
+{
+  "ED-01": {
+    "pasos": [
+      "MÉTODO: coeficientes constantes (ED homogénea)",
+      "Ecuación característica: r**2 + 4*r + 4 = 0",
+      "Raíces: -2 (mult. 2)",
+      "Caso: raíz real repetida -> y1 = e^(rx), y2 = x e^(rx)",
+      "y_h = C1·(exp(-2*x)) + C2·(x*exp(-2*x))",
+      "Condiciones iniciales: y(0)=1.0, y'(0)=0.0 -> C1 = 1, C2 = 2"
+    ],
+    "solucion": "2*x*exp(-2*x) + exp(-2*x)"
+  },
+  "ED-02": {
+    "pasos": [
+      "MÉTODO: variación de parámetros",
+      "Ecuación característica: r**2 + 9 = 0",
+      "Raíces: -3*I (mult. 1), 3*I (mult. 1)",
+      "Caso: raíces complejas α ± βi con α=0, β=3",
+      "y_h = C1·(cos(3*x)) + C2·(sin(3*x))",
+      "Wronskiano W(y1, y2) = 3",
+      "u1' = -y2·g/W = -tan(3*x)/3",
+      "u2' =  y1·g/W = 1/3",
+      "u1 = ∫u1' dx = log(cos(3*x))/9",
+      "u2 = ∫u2' dx = x/3",
+      "y_p = u1·y1 + u2·y2 = x*sin(3*x)/3 + log(cos(3*x))*cos(3*x)/9",
+      "Condiciones iniciales: y(0)=0.0, y'(0)=0.0 -> C1 = 0, C2 = 0"
+    ],
+    "solucion": "x*sin(3*x)/3 + log(cos(3*x))*cos(3*x)/9"
+  },
+  "ED-03": {
+    "pasos": [
+      "MÉTODO: superposición (cada término por coeficientes indeterminados)",
+      "Ecuación característica: r**2 - 5*r + 6 = 0",
+      "Raíces: 2 (mult. 1), 3 (mult. 1)",
+      "Caso: raíces reales distintas -> y1 = e^(r1 x), y2 = e^(r2 x)",
+      "y_h = C1·(exp(2*x)) + C2·(exp(3*x))",
+      "g(x) se separa en 2 términos: 2*exp(x) | sin(x)",
+      "  L[y_p1] = 2*exp(x): ensayo A*exp(x) -> y_p1 = exp(x)",
+      "  L[y_p2] = sin(x): ensayo A*cos(x) + B*sin(x) -> y_p2 = sin(x)/10 + cos(x)/10",
+      "Principio de superposición: y_p = Σ y_pi = exp(x) + sin(x)/10 + cos(x)/10",
+      "Condiciones iniciales: y(0)=1.0, y'(0)=2.0 -> C1 = -6/5, C2 = 11/10"
+    ],
+    "solucion": "11*exp(3*x)/10 - 6*exp(2*x)/5 + exp(x) + sin(x)/10 + cos(x)/10"
+  }
+}

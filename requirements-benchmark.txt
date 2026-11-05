@@ -1,0 +1,5 @@
+# Dependencias completas para reentrenar la red y regenerar resultados y figuras
+-r requirements.txt
+scipy
+matplotlib
+torch

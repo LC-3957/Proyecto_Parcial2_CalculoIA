@@ -1,4 +1,4 @@
-"""Exporta los pesos de las PINN entrenadas (modelos/*.pt) a modelos/*.npz para red_numpy.py."""
+"""Guarda los pesos de modelos/*.pt como .npz para red_numpy.py."""
 import numpy as np
 import torch.nn as nn
 

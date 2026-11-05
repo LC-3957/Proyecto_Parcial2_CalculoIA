@@ -2,6 +2,8 @@
 
 Proyecto 2do parcial: Cálculo para Inteligencia Artificial, Ingeniería en IA, Ibero León.
 
+**Interfaz en línea:** https://benchmark-edos-ibero.streamlit.app/
+
 ## Estructura
 
 | Archivo | Fase | Qué hace |

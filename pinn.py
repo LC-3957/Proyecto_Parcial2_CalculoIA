@@ -1,23 +1,8 @@
-"""
-Fase 3: Red neuronal informada por la fisica (PINN) en PyTorch.
+"""Red neuronal informada por la física (PINN) en PyTorch.
 
-Diseno de la estrategia neuronal
---------------------------------
-1. Arquitectura: perceptron multicapa (MLP) con activacion tanh (suave e
-   infinitamente derivable, necesario porque la perdida usa y'').
-2. Restriccion "dura" de condiciones iniciales:
-        y_hat(x) = y0 + v0*x + x^2 * N(x/T)
-   Con esta forma y_hat(0) = y0 y y_hat'(0) = v0 se cumplen EXACTAMENTE para
-   cualquier peso de la red, asi la perdida solo tiene que minimizar el
-   residual de la ED (no hay que balancear terminos de perdida).
-3. Perdida fisica (no usa ningun dato de la solucion):
-        L = mean( (a*y'' + b*y' + c*y - g(x))^2 )   en puntos de colocacion
-   Las derivadas y', y'' se obtienen por diferenciacion automatica.
-4. Entrenamiento: Adam (exploracion, puntos de colocacion re-muestreados
-   aleatoriamente en cada iteracion) seguido de L-BFGS (refinamiento fino
-   sobre una malla fija). Precision float64.
-5. Seleccion de hiperparametros con el residual en una malla de validacion
-   distinta; la solucion exacta NO se usa para elegir el modelo.
+La salida es y(x) = y0 + v0*x + x^2 * N(x/T), así las condiciones iniciales
+siempre se cumplen y la pérdida es solo el residual de la ecuación.
+Se entrena con Adam y después con L-BFGS.
 """
 import time
 
@@ -75,7 +60,7 @@ class PINN:
         return sum(q.numel() for q in self.red.parameters())
 
     def y(self, xt):
-        """Ansatz con condiciones iniciales impuestas exactamente."""
+        """y(x) con las condiciones iniciales ya incluidas."""
         p = self.p
         return p["y0"] + p["v0"] * xt + xt**2 * self.red(xt / self.T)
 
@@ -125,7 +110,7 @@ class PINN:
         return self
 
     def residual_validacion(self, n=1000):
-        # malla desplazada: no coincide con los puntos de entrenamiento
+        # puntos distintos a los de entrenamiento
         xv = (torch.linspace(0, 1, n) * 0.997 + 0.0013).reshape(-1, 1) * self.T
         return self.perdida(xv).item()
 

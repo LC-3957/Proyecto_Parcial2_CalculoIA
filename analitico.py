@@ -1,16 +1,7 @@
-"""
-Fase 1: Metodos analiticos programados con SymPy.
+"""Solución analítica de las tres EDOs con SymPy.
 
-Se implementan los tres metodos clasicos de forma explicita (no se usa
-dsolve para resolver; dsolve solo se usa al final como verificacion cruzada):
-
-  * coeficientes_constantes : ecuacion caracteristica -> solucion homogenea
-  * variacion_parametros     : Wronskiano, u1' = -y2 g / W, u2' = y1 g / W
-  * superposicion            : g = g1 + g2 + ...  ->  yp = yp1 + yp2 + ...
-                               (cada ypi por coeficientes indeterminados)
-
-Cada funcion regresa la solucion y una lista de pasos legibles, que la
-interfaz grafica muestra al usuario.
+Coeficientes constantes, variación de parámetros y superposición.
+Cada función regresa y(x) y la lista de pasos que muestra la interfaz.
 """
 import sympy as sp
 
@@ -19,9 +10,7 @@ from edos import BANCO, EXACTAS, x
 C1, C2 = sp.symbols("C1 C2")
 
 
-# ---------------------------------------------------------------------------
-# Solucion homogenea (base de todos los metodos)
-# ---------------------------------------------------------------------------
+# Solución homogénea (la usan los tres métodos)
 def base_homogenea(a, b, c, pasos):
     r = sp.symbols("r")
     car = a * r**2 + b * r + c
@@ -31,7 +20,7 @@ def base_homogenea(a, b, c, pasos):
     pasos.append(f"Raíces: {', '.join(f'{sp.sstr(k)} (mult. {m})' for k, m in orden)}")
 
     lista = list(raices.items())
-    if len(lista) == 1:  # raiz real repetida
+    if len(lista) == 1:  # raíz real repetida
         r1, _ = lista[0]
         y1, y2 = sp.exp(r1 * x), x * sp.exp(r1 * x)
         pasos.append("Caso: raíz real repetida -> y1 = e^(rx), y2 = x e^(rx)")
@@ -59,9 +48,7 @@ def aplicar_condiciones(y_gen, y0, v0, pasos):
     return sp.expand(y_gen.subs(sol))
 
 
-# ---------------------------------------------------------------------------
-# Metodo 1: coeficientes constantes (ED homogenea)
-# ---------------------------------------------------------------------------
+# Coeficientes constantes
 def coeficientes_constantes(p):
     pasos = ["MÉTODO: coeficientes constantes (ED homogénea)"]
     y1, y2 = base_homogenea(p["a"], p["b"], p["c"], pasos)
@@ -69,12 +56,10 @@ def coeficientes_constantes(p):
     return y, pasos
 
 
-# ---------------------------------------------------------------------------
-# Metodo 2: variacion de parametros
-# ---------------------------------------------------------------------------
+# Variación de parámetros
 def variacion_parametros(p):
     pasos = ["MÉTODO: variación de parámetros"]
-    a, g = p["a"], p["g"] / p["a"]  # forma estandar y'' + (b/a) y' + (c/a) y = g/a
+    g = p["g"] / p["a"]  # forma estándar: se divide entre a
     y1, y2 = base_homogenea(p["a"], p["b"], p["c"], pasos)
     W = sp.simplify(sp.Matrix([[y1, y2], [sp.diff(y1, x), sp.diff(y2, x)]]).det())
     pasos.append(f"Wronskiano W(y1, y2) = {sp.sstr(W)}")
@@ -84,7 +69,7 @@ def variacion_parametros(p):
     pasos.append(f"u2' =  y1·g/W = {sp.sstr(du2)}")
     u1 = sp.integrate(du1, x)
     u2 = sp.integrate(du2, x)
-    # Dentro del dominio |3x| < pi/2 el coseno es positivo: log|cos| = log(cos)
+    # en el dominio cos(3x) > 0, se quita el valor absoluto
     u1 = u1.replace(sp.Abs, lambda arg: arg)
     pasos.append(f"u1 = ∫u1' dx = {sp.sstr(u1)}")
     pasos.append(f"u2 = ∫u2' dx = {sp.sstr(u2)}")
@@ -94,11 +79,9 @@ def variacion_parametros(p):
     return y, pasos
 
 
-# ---------------------------------------------------------------------------
-# Metodo 3: superposicion (+ coeficientes indeterminados por termino)
-# ---------------------------------------------------------------------------
+# Superposición
 def _particular_un_termino(a, b, c, gi, y1, y2):
-    """Coeficientes indeterminados para un termino k*e^(mx) o k*sin/cos(wx)."""
+    """Coeficientes indeterminados para un término k*e^(mx) o k*sin(wx), k*cos(wx)."""
     A, B = sp.symbols("A B")
     gi_e = sp.expand(gi)
     if gi_e.has(sp.exp):
@@ -112,14 +95,14 @@ def _particular_un_termino(a, b, c, gi, y1, y2):
         ww = f.args[0].match(w * x)[w]
         trial = A * sp.cos(ww * x) + B * sp.sin(ww * x)
         incog = [A, B]
-    # Regla de modificacion: si el ensayo es solucion de la homogenea, multiplicar por x
+    # si el ensayo ya es solución de la homogénea se multiplica por x
     s = 0
     while sp.simplify(a * sp.diff(trial, x, 2) + b * sp.diff(trial, x) + c * trial).subs(
         {k: 1 for k in incog}
     ) == 0:
         trial, s = x * trial, s + 1
     L = a * sp.diff(trial, x, 2) + b * sp.diff(trial, x) + c * trial - gi
-    # igualar coeficientes evaluando en varios puntos
+    # se evalúa en varios puntos para sacar los coeficientes
     ecs = [sp.Eq(L.subs(x, xv), 0) for xv in [0, 1, 2][: len(incog)]]
     sol = sp.solve(ecs, incog, dict=True)[0]
     return sp.expand(trial.subs(sol)), trial
@@ -149,7 +132,7 @@ METODOS = {
 
 
 def verificar(ed_id, y):
-    """Comprueba residual = 0, condiciones iniciales y concordancia con la exacta."""
+    """Revisa que el residual sea 0, las condiciones iniciales y que coincida con la solución a mano."""
     p = BANCO[ed_id]
     res = sp.simplify(p["a"] * sp.diff(y, x, 2) + p["b"] * sp.diff(y, x) + p["c"] * y - p["g"])
     ci0 = sp.simplify(y.subs(x, 0) - sp.nsimplify(p["y0"]))

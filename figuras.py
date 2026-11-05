@@ -1,4 +1,4 @@
-"""Genera las graficas del reporte a partir de resultados/*.csv."""
+"""Gráficas del reporte a partir de resultados/*.csv."""
 import os
 
 import matplotlib
@@ -72,7 +72,7 @@ ax.legend()
 ax.set_title("Convergencia de RK4: el error cae ~16× al duplicar los pasos", loc="left")
 guardar(fig, "fig3_convergencia_rk4")
 
-# 4. Historial de perdida PINN
+# 4. Pérdida de la PINN
 fig, ax = plt.subplots(figsize=(6.4, 4.2))
 for ed in EDS:
     h = pd.read_csv(f"resultados/perdida_{ed}.csv")
@@ -85,7 +85,7 @@ ax.legend()
 ax.set_title("Entrenamiento de la PINN", loc="left")
 guardar(fig, "fig4_perdida_pinn")
 
-# 5. Hiperparametros: residual de validacion vs error real
+# 5. Hiperparámetros: residual de validación vs error real
 hp = pd.read_csv("resultados/hiperparametros.csv")
 fig, ax = plt.subplots(figsize=(6.4, 4.2))
 for ed in EDS:
@@ -99,7 +99,7 @@ ax.set_title("Menor residual ⇒ menor error: válido para elegir la arquitectur
              fontsize=10)
 guardar(fig, "fig5_hiperparametros")
 
-# 6. Extrapolacion (error de la PINN dentro y fuera del dominio)
+# 6. Error de la PINN fuera del dominio
 fig, axs = plt.subplots(1, 3, figsize=(13, 3.6), sharey=True)
 for ax, ed in zip(axs, EDS):
     d = pd.read_csv(f"resultados/datos_ext_{ed}.csv")

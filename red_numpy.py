@@ -1,11 +1,6 @@
-"""
-Evaluación de la red neuronal (PINN) ya entrenada usando solo NumPy.
+"""Evalúa la PINN ya entrenada con NumPy para que la app no necesite PyTorch.
 
-Los pesos se exportaron desde PyTorch (pinn.py) a archivos .npz. Así la interfaz
-puede evaluar la red sin instalar PyTorch, lo que la hace mucho más ligera para
-desplegarla. El resultado es idéntico al de PyTorch (misma arquitectura, float64).
-
-    y_hat(x) = y0 + v0*x + x^2 * N(x/T),   N = MLP con activación tanh
+Los pesos se generan con exportar_pesos.py.
 """
 import numpy as np
 

@@ -1,12 +1,6 @@
-"""
-Banco de ecuaciones diferenciales de prueba.
+"""Las tres ecuaciones del proyecto, de la forma a*y'' + b*y' + c*y = g(x).
 
-Todas son lineales de segundo orden con coeficientes constantes:
-    a*y'' + b*y' + c*y = g(x),   y(0) = y0,  y'(0) = v0
-
-Cada ED se resuelve en un dominio [0, T]. Para ED-02 el dominio se limita a
-[0, 0.5] porque sec(3x) tiene una asintota en x = pi/6 ~ 0.5236 y la solucion
-solo existe en el intervalo (-pi/6, pi/6).
+ED-02 se resuelve en [0, 0.5] porque sec(3x) diverge en x = pi/6.
 """
 import numpy as np
 import sympy as sp
@@ -40,9 +34,8 @@ BANCO = {
     ),
 }
 
-# Soluciones exactas cerradas obtenidas a mano (ver reporte). Se usan como
-# referencia "verdadera" y para validar que el solucionador simbolico
-# programado en analitico.py llega exactamente al mismo resultado.
+# Soluciones hechas a mano. Son la referencia para medir el error
+# y para comprobar el resultado de analitico.py.
 EXACTAS = {
     "ED-01": (1 + 2 * x) * sp.exp(-2 * x),
     "ED-02": sp.Rational(1, 9) * sp.cos(3 * x) * sp.log(sp.cos(3 * x))
@@ -53,7 +46,7 @@ EXACTAS = {
 
 
 def g_numpy(ed_id):
-    """Funcion de forzamiento g(x) vectorizada con NumPy."""
+    """g(x) como función de NumPy."""
     return sp.lambdify(x, BANCO[ed_id]["g"] + 0 * x, "numpy")
 
 
@@ -62,7 +55,7 @@ def exacta_numpy(ed_id):
 
 
 def sistema_primer_orden(ed_id):
-    """Convierte la ED de 2o orden en un sistema y1' = y2, y2' = (g - b y2 - c y1)/a."""
+    """Sistema de primer orden: y1' = y2, y2' = (g - b*y2 - c*y1)/a."""
     p = BANCO[ed_id]
     a, b, c = p["a"], p["b"], p["c"]
     g = g_numpy(ed_id)

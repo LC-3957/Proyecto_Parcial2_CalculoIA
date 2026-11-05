@@ -1,9 +1,6 @@
-"""
-Fase 0: Interfaz grafica (Streamlit).
+"""Interfaz del proyecto.
 
-Ejecutar:   python -m streamlit run app.py
-Usa los resultados guardados en resultados/ y modelos/ (generados por benchmark.py).
-La red entrenada se evalúa con NumPy (red_numpy.py), así la interfaz no necesita PyTorch.
+Correr con: python -m streamlit run app.py
 """
 import json
 import re
@@ -21,7 +18,7 @@ from red_numpy import RedNumpy
 
 st.set_page_config(page_title="Benchmark de EDOs", layout="wide", initial_sidebar_state="collapsed")
 
-# ------------------------------------------------------------------ paleta
+# paleta
 TEXTO = "#22252c"        # tinta
 TEXTO_2 = "#5a5f6b"
 FONDO = "#f7f4ee"        # papel
@@ -51,7 +48,7 @@ div:has(> .st-key-barra) {{ position: sticky; top: 3.75rem; z-index: 999; }}
 .st-key-barra .marca small {{ display: block; font-family: 'IBM Plex Sans', sans-serif; font-weight: 400;
   font-size: .78rem; color: #c9cde0; margin-top: 2px; }}
 .st-key-barra [role="radiogroup"] {{ gap: 10px; flex-wrap: wrap; justify-content: flex-end; }}
-/* opciones como botones pastel (selectores para versiones nuevas y anteriores de Streamlit) */
+/* botones de las ecuaciones */
 .st-key-barra [role="radiogroup"] > div:nth-child(1) label,
 .st-key-barra label[data-baseweb="radio"]:nth-child(1) {{ background: #dfe8f8; }}
 .st-key-barra [role="radiogroup"] > div:nth-child(2) label,
@@ -167,7 +164,7 @@ def fmt(v):
 
 
 def legible(t):
-    """Pasa la notación de SymPy a notación matemática: r**2 -> r², exp(-2*x) -> e^(-2x), 3*I -> 3i."""
+    """Cambia la notación de SymPy por notación normal (r**2 -> r², exp(x) -> e^(x))."""
     t = re.sub(r"exp\(([^()]*)\)", r"e^(\1)", t)
     t = t.replace("**2", "²").replace("**", "^")
     t = re.sub(r"(\d)\*([A-Za-z(])", r"\1\2", t)
@@ -185,7 +182,7 @@ def legible(t):
     return t
 
 
-# ------------------------------------------------------------------ barra superior fija
+# barra superior fija
 with st.container(key="barra"):
     c_marca, c_sel = st.columns([1, 3.2], vertical_alignment="center")
     c_marca.markdown("<div class='marca'>Benchmark de EDOs<small>Analítico, RK4 y red neuronal</small></div>",
@@ -211,7 +208,7 @@ if ed == "ED-02":
 tabs = st.tabs(["Solución analítica", "Comparación", "Métricas", "RK4 interactivo",
                 "Red neuronal", "Conclusiones"])
 
-# ------------------------------------------------------------------ 1. analitico
+# Pestaña 1: solución analítica
 with tabs[0]:
     pasos = cargar_pasos()[ed]
     c1, c2 = st.columns([3, 2])
@@ -238,7 +235,7 @@ with tabs[0]:
         f.update_layout(xaxis_title="x", yaxis_title="y(x)")
         st.plotly_chart(estilo(f, "Gráfica de la solución exacta", 320), width="stretch")
 
-# ------------------------------------------------------------------ 2. comparacion
+# Pestaña 2: comparación
 with tabs[1]:
     d = cargar_csv(f"datos_{ed}.csv")
     a, b = st.columns([3, 1])
@@ -273,7 +270,7 @@ with tabs[1]:
         f.update_layout(xaxis_title="x", yaxis_title="|aproximación − exacta|")
         st.plotly_chart(estilo(f, "Error absoluto vs. solución exacta", log_y=log), width="stretch")
 
-# ------------------------------------------------------------------ 3. metricas
+# Pestaña 3: métricas
 with tabs[2]:
     mt = cargar_csv("metricas.csv")
     s = mt[mt.ED == ed]
@@ -316,7 +313,7 @@ with tabs[2]:
                     yaxis_title="segundos" if campo is None else metrica)
     st.plotly_chart(f, width="stretch")
 
-# ------------------------------------------------------------------ 4. RK4 interactivo
+# Pestaña 4: RK4 interactivo
 with tabs[3]:
     st.markdown("<div class='burbuja' style='background:#f8e6dc'>Mueve el número de pasos y observa cómo "
                 "RK4 se acerca a la solución exacta.</div>", unsafe_allow_html=True)
@@ -364,7 +361,7 @@ with tabs[3]:
     f.update_yaxes(title="error máximo")
     st.plotly_chart(f, width="stretch")
 
-# ------------------------------------------------------------------ 5. red neuronal
+# Pestaña 5: red neuronal
 with tabs[4]:
     modelo = cargar_pinn(ed)
     a, b, c = st.columns(3)
@@ -417,7 +414,7 @@ with tabs[4]:
         st.markdown(f"**Robustez con {len(sem)} semillas aleatorias:** el error máximo fue de "
                     f"{sem.error_max.min():.1e} a {sem.error_max.max():.1e} (mediana {sem.error_max.median():.1e}).")
 
-# ------------------------------------------------------------------ 6. conclusiones
+# Pestaña 6: conclusiones
 with tabs[5]:
     eq = cargar_csv("equivalencia.csv")
     ext = cargar_csv("extrapolacion.csv")

@@ -1,15 +1,6 @@
-"""
-Fase 2: Runge-Kutta clasico de orden 4, implementado desde cero.
+"""Runge-Kutta de orden 4.
 
-La ED de 2o orden se reescribe como sistema de 1er orden Y = [y, y']:
-    Y' = F(x, Y)
-y en cada paso:
-    k1 = F(x_n,       Y_n)
-    k2 = F(x_n + h/2, Y_n + h/2 k1)
-    k3 = F(x_n + h/2, Y_n + h/2 k2)
-    k4 = F(x_n + h,   Y_n + h   k3)
-    Y_{n+1} = Y_n + h/6 (k1 + 2k2 + 2k3 + k4)
-Error global O(h^4).
+La EDO de segundo orden se pasa a un sistema con Y = [y, y'].
 """
 import numpy as np
 
